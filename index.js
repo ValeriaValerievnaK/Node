@@ -47,13 +47,13 @@ app.delete("/:id", async (req, res) => {
 });
 
 app.put("/:id", async (req, res) => {
-  await updateNote(req.params.id, req.body.title);
-  
-  res.render("index", {
-    title: "Express App",
-    notes: await getNotes(),
-    created: false,
-  });
+  try {
+    await updateNote(req.params.id, req.body.title);
+    res.json({ success: true });
+    
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 app.listen(port, () => {

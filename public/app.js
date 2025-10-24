@@ -11,8 +11,18 @@ document.addEventListener("click", (event) => {
     const id = event.target.dataset.id;
     const listItem = event.target.closest("li");
     const currentTitle = listItem.querySelector(".note-title").textContent;
+    enableEditMode(id, currentTitle, listItem);
+  }
 
-    editNote(id, currentTitle, listItem);
+  if (event.target.dataset.type === "save") {
+    const id = event.target.dataset.id;
+    const listItem = event.target.closest("li");
+    saveNote(id, listItem);
+  }
+
+  if (event.target.dataset.type === "cancel") {
+    const listItem = event.target.closest("li");
+    disableEditMode(listItem);
   }
 });
 
@@ -22,15 +32,37 @@ async function remove(id) {
   });
 }
 
-async function editNote(id, currentTitle, listItem) {
-  const newTitle = prompt("Введите новое название заметки:", currentTitle);
+function enableEditMode(id, currentTitle, listItem) {
+  listItem.dataset.originalTitle = currentTitle;
+  const editHTML = `
+    <div class="input-group input-group-sm me-3 rounded">
+      <input type="text" class="form-control edit-input rounded-start" value="${currentTitle}" placeholder="Введите название заметки..">
+      <button class="btn btn-success ms-2 rounded" data-type="save" data-id="${id}">Сохранить =)</button>
+      <button class="btn btn-danger ms-2 rounded" data-type="cancel">Отменить =(</button>
+    </div>
+  `;
 
-  if (newTitle === null) {
-    return;
-  }
+  const noteContent = listItem.querySelector(".note-content");
+  noteContent.innerHTML = editHTML;
 
-  if (newTitle.trim() === "") {
+  listItem.querySelector(".action-buttons").classList.add("d-none");
+}
+
+function disableEditMode(listItem) {
+  const originalTitle = listItem.dataset.originalTitle;
+
+  const noteContent = listItem.querySelector(".note-content");
+  noteContent.innerHTML = `<span class="note-title">${originalTitle}</span>`;
+  listItem.querySelector(".action-buttons").classList.remove("d-none");
+}
+
+async function saveNote(id, listItem) {
+  const input = listItem.querySelector(".edit-input");
+  const newTitle = input.value.trim();
+
+  if (newTitle === "") {
     alert("Название заметки не может быть пустым!");
+    input.focus();
     return;
   }
 
@@ -40,16 +72,36 @@ async function editNote(id, currentTitle, listItem) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title: newTitle.trim() }),
+      body: JSON.stringify({ title: newTitle }),
     });
 
     if (response.ok) {
-      listItem.querySelector(".note-title").textContent = newTitle.trim();
+      const noteContent = listItem.querySelector(".note-content");
+      noteContent.innerHTML = `<span class="note-title">${newTitle}</span>`;
+
+      listItem.querySelector(".action-buttons").classList.remove("d-none");
     } else {
       throw new Error("Ошибка при обновлении заметки");
     }
   } catch (error) {
     console.error(error);
-    alert("Произошла ошибка при обновлении заметки");
   }
 }
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && event.target.classList.contains("edit-input")) {
+    const listItem = event.target.closest("li");
+    const saveButton = listItem.querySelector('[data-type="save"]');
+    if (saveButton) {
+      saveButton.click();
+    }
+  }
+
+  if (event.key === "Escape" && event.target.classList.contains("edit-input")) {
+    const listItem = event.target.closest("li");
+    const cancelButton = listItem.querySelector('[data-type="cancel"]');
+    if (cancelButton) {
+      cancelButton.click();
+    }
+  }
+});
