@@ -1,45 +1,61 @@
-const yargs = require("yargs");
-const pkg = require("./package.json");
-const { addNote, printNotes, removeNotes } = require("./notes.controller");
+const express = require("express");
+const chalk = require("chalk");
+const path = require("path");
+const { addNote, getNotes, removeNotes, updateNote } = require("./notes.controller.js");
 
-yargs.version(pkg.version);
+const port = 3000;
+const app = express();
 
-yargs.command({
-  command: "add",
-  describe: "Add new note to list",
-  builder: {
-    title: {
-      type: "string",
-      describe: "Note title",
-      demandOption: true,
-    },
-  },
-  handler({ title }) {
-    addNote(title);
-  },
+app.set("view engine", "ejs");
+app.set("views", "pages");
+
+app.use(express.static(path.resolve(__dirname, "public")));
+
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
+
+app.use(express.json());
+
+app.get("/", async (req, res) => {
+  res.render("index", {
+    title: "Express App",
+    notes: await getNotes(),
+    created: false,
+  });
 });
 
-yargs.command({
-  command: "list",
-  describe: "Print all notes",
-  async handler() {
-    printNotes();
-  },
+app.post("/", async (req, res) => {
+  await addNote(req.body.title);
+  res.render("index", {
+    title: "Express App",
+    notes: await getNotes(),
+    created: true,
+  });
 });
 
-yargs.command({
-  command: "remove",
-  describe: "Remove note by id",
-  builder: {
-    id: {
-      type: "string",
-      describe: "Note id",
-      demandOption: true,
-    },
-  },
-  async handler({ id }) {
-    removeNotes(id);
-  },
+app.delete("/:id", async (req, res) => {
+  await removeNotes(req.params.id);
+
+  res.render("index", {
+    title: "Express App",
+    notes: await getNotes(),
+    created: false,
+  });
 });
 
-yargs.parse();
+app.put("/:id", async (req, res) => {
+  await updateNote(req.params.id, req.body.title);
+  
+  res.render("index", {
+    title: "Express App",
+    notes: await getNotes(),
+    created: false,
+  });
+});
+
+app.listen(port, () => {
+  console.log(chalk.green(`Server has been stsrted on port ${port}... `));
+});
