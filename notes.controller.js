@@ -46,8 +46,26 @@ async function removeNotes(id) {
   console.log(chalk.green.inverse(`Note with id ${id} was removed!`));
 }
 
+async function editNote(id, title) {
+  const notes = await getNotes();
+  const noteIndex = notes.findIndex((note) => note.id === id);
+
+  if (noteIndex === -1) {
+    console.log(chalk.bgRed(`Note with id ${id} not found`));
+    return;
+  }
+
+  const oldTitle = notes[noteIndex].title;
+  notes[noteIndex].title = title;
+
+  await fs.writeFile(notesPath, JSON.stringify(notes));
+  console.log(chalk.green.inverse(`Note with id ${id} was updated!`));
+  console.log(chalk.blue(`Changed feom: "${oldTitle}" to: "${title}"`));
+}
+
 module.exports = {
   addNote,
   printNotes,
   removeNotes,
+  editNote,
 };
