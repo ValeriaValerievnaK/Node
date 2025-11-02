@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "serve": "nodemon index.js"
+    "serve": "nodemon server/index.js",
+    "dev": "vite"
   },
   "keywords": [
     "node",
@@ -22,10 +23,31 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.2",
     "validator": "^13.15.20",
-    "yargs": "^17.2.1"
+    "yargs": "^17.2.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-hook-form": "^7.62.0",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.9.1",
+    "redux": "^5.0.1",
+    "redux-thunk": "^3.1.0",
+    "styled-components": "^6.1.19",
+    "yup": "^1.7.0",
+    "@hookform/resolvers": "^5.2.2"
   },
   "devDependencies": {
     "@types/yargs": "^17.0.33",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "@eslint/js": "^9.25.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react-swc": "^3.9.0",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.3",
+    "vite": "^6.3.5",
+    "vite-plugin-svgr": "^4.3.0"
   }
 }
